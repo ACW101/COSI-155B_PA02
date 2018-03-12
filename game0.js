@@ -1,40 +1,42 @@
-// First we declare the variables that hold the objects we need
-// in the animation code
-var scene, renderer;  // all threejs programs need these
-var camera, avatarCam;  // we have two cameras in the main scene
+
+var renderer;  // renderer
+var scene, camera, avatarCam;     //main scene
+var endScene, endCamera, endText; //end scene
+
+// main scene objects
 var avatar;
-
-// here are some mesh objects ...
 var cone;
+var clock;
 
-var endScene, endCamera, endText;
-
+// control object that store the states of avatar
 var controls =
 	{fwd:false, bwd:false, left:false, right:false,
 	 speed:10, fly:false, reset:false,
 	 camera:camera};
 
+// object that store the states of main game
 var gameState =
 	{score:0, health:10, scene:'main', camera:'none' };
 
-// Here is the main game control
-init(); //
-initControls();
+
+init();     // initialize scene
 animate();  // start the animation loop!
 
-/**
-  To initialize the scene, we initialize each of its components
-*/
+
+// ============================ functions ================================
+
 function init(){
     initPhysijs();
-	scene = initScene();
-	createEndScene();
 	initRenderer();
+	initControls();
+
+	createEndScene();
 	createMainScene();
 }
 
 
 function createMainScene(){
+	scene = initScene();
     // setup lighting
 	var light1 = createPointLight();
 	light1.position.set(0,200,20);
@@ -111,6 +113,123 @@ function animate() {
 }
 
 
+function initScene(){
+	//scene = new THREE.Scene();
+	var scene = new Physijs.Scene();
+		return scene;
+}
+
+
+function initPhysijs(){
+	Physijs.scripts.worker = '/libs/physijs_worker.js';
+	Physijs.scripts.ammo = '/libs/ammo.js';
+}
+/*
+	The renderer needs a size and the actual canvas we draw on
+	needs to be added to the body of the webpage. We also specify
+	that the renderer will be computing soft shadows
+*/
+function initRenderer(){
+	renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight-50 );
+	document.body.appendChild( renderer.domElement );
+	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+}
+
+
+function initControls(){
+	// here is where we create the eventListeners to respond to operations
+	//create a clock for the time-based animation ...
+	clock = new THREE.Clock();
+	clock.start();
+
+	window.addEventListener( 'keydown', keydown);
+	window.addEventListener( 'keyup',   keyup );
+}
+
+function keydown(event){
+	console.log("Keydown:"+event.key);
+	//console.dir(event);
+	// first we handle the "play again" key in the "youwon" scene
+	if (gameState.scene == 'youwon' && event.key=='r') {
+		gameState.scene = 'main';
+		gameState.score = 0;
+		addBalls();
+		return;
+	}
+
+	// this is the regular scene
+	switch (event.key){
+		// change the way the avatar is moving
+		case "w": controls.fwd = true;  break;
+		case "s": controls.bwd = true; break;
+		case "a": controls.left = true; break;
+		case "d": controls.right = true; break;
+		//case "r": controls.up = true; break;
+		//case "f": controls.down = true; break;
+		//case "m": controls.speed = 30; break;
+		//case " ": controls.fly = true; break;
+		case "h": controls.reset = true; break;
+
+		// switch cameras
+		case "1": gameState.camera = camera; break;
+		case "2": gameState.camera = avatarCam; break;
+
+		// move the camera around, relative to the avatar
+		case "ArrowLeft": avatarCam.translateY(1);break;
+		case "ArrowRight": avatarCam.translateY(-1);break;
+		case "ArrowUp": avatarCam.translateZ(-1);break;
+		case "ArrowDown": avatarCam.translateZ(1);break;
+	}
+}
+
+function keyup(event){
+	//console.log("Keydown:"+event.key);
+	//console.dir(event);
+	switch (event.key){
+		case "w": controls.fwd   = false;  break;
+		case "s": controls.bwd   = false; break;
+		case "a": controls.left  = false; break;
+		case "d": controls.right = false; break;
+		//case "r": controls.up    = false; break;
+		//case "f": controls.down  = false; break;
+		//case "m": controls.speed = 10; break;
+		//case " ": controls.fly = false; break;
+		case "h": controls.reset = false; break;
+	}
+}
+
+function updateAvatar(){
+	//"change the avatar's linear or angular velocity based on controls state (set by WSAD key presses)"
+	var forward = avatar.getWorldDirection();
+
+	if (controls.fwd){
+		avatar.setLinearVelocity(forward.multiplyScalar(controls.speed));
+	} else if (controls.bwd){
+		avatar.setLinearVelocity(forward.multiplyScalar(-controls.speed));
+	} else {
+		var velocity = avatar.getLinearVelocity();
+		velocity.x=velocity.z=0;
+		avatar.setLinearVelocity(velocity); //stop the xz motion
+	}
+
+	if (controls.fly){
+	  avatar.setLinearVelocity(new THREE.Vector3(0,controls.speed,0));
+	}
+
+	if (controls.left){
+		avatar.setAngularVelocity(new THREE.Vector3(0,controls.speed*0.1,0));
+	} else if (controls.right){
+		avatar.setAngularVelocity(new THREE.Vector3(0,-controls.speed*0.1,0));
+	}
+
+	if (controls.reset){
+	  avatar.__dirtyPosition = true;
+	  avatar.position.set(40,10,40);
+	}
+}
+
 function randN(n){
 	return Math.random()*n;
 }
@@ -134,7 +253,7 @@ function addBalls(){
 						gameState.scene='youwon';
 					}
 					// make the ball drop below the scene ..
-					// threejs doesn't let us remove it from the schene...
+					// threejs doesn't let us remove it from the scene...
 					this.position.y = this.position.y - 100;
 					this.__dirtyPosition = true;
 				}
@@ -142,7 +261,6 @@ function addBalls(){
 		)
 	}
 }
-
 
 function playGameMusic(){
 	// create an AudioListener and add it to the camera
@@ -179,126 +297,6 @@ function soundEffect(file){
 		sound.setVolume( 0.5 );
 		sound.play();
 	});
-}
-
-/* We don't do much here, but we could do more!
-*/
-function initScene(){
-	//scene = new THREE.Scene();
-	var scene = new Physijs.Scene();
-		return scene;
-}
-
-
-function initPhysijs(){
-	Physijs.scripts.worker = '/js/physijs_worker.js';
-	Physijs.scripts.ammo = '/js/ammo.js';
-}
-/*
-	The renderer needs a size and the actual canvas we draw on
-	needs to be added to the body of the webpage. We also specify
-	that the renderer will be computing soft shadows
-*/
-function initRenderer(){
-	renderer = new THREE.WebGLRenderer();
-	renderer.setSize( window.innerWidth, window.innerHeight-50 );
-	document.body.appendChild( renderer.domElement );
-	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-}
-
-var clock;
-
-function initControls(){
-	// here is where we create the eventListeners to respond to operations
-	//create a clock for the time-based animation ...
-	clock = new THREE.Clock();
-	clock.start();
-
-	window.addEventListener( 'keydown', keydown);
-	window.addEventListener( 'keyup',   keyup );
-}
-
-function keydown(event){
-	console.log("Keydown:"+event.key);
-	//console.dir(event);
-	// first we handle the "play again" key in the "youwon" scene
-	if (gameState.scene == 'youwon' && event.key=='r') {
-		gameState.scene = 'main';
-		gameState.score = 0;
-		addBalls();
-		return;
-	}
-
-	// this is the regular scene
-	switch (event.key){
-		// change the way the avatar is moving
-		case "w": controls.fwd = true;  break;
-		case "s": controls.bwd = true; break;
-		case "a": controls.left = true; break;
-		case "d": controls.right = true; break;
-		case "r": controls.up = true; break;
-		case "f": controls.down = true; break;
-		case "m": controls.speed = 30; break;
-		case " ": controls.fly = true; break;
-		case "h": controls.reset = true; break;
-
-		// switch cameras
-		case "1": gameState.camera = camera; break;
-		case "2": gameState.camera = avatarCam; break;
-
-		// move the camera around, relative to the avatar
-		case "ArrowLeft": avatarCam.translateY(1);break;
-		case "ArrowRight": avatarCam.translateY(-1);break;
-		case "ArrowUp": avatarCam.translateZ(-1);break;
-		case "ArrowDown": avatarCam.translateZ(1);break;
-	}
-}
-
-function keyup(event){
-	//console.log("Keydown:"+event.key);
-	//console.dir(event);
-	switch (event.key){
-		case "w": controls.fwd   = false;  break;
-		case "s": controls.bwd   = false; break;
-		case "a": controls.left  = false; break;
-		case "d": controls.right = false; break;
-		case "r": controls.up    = false; break;
-		case "f": controls.down  = false; break;
-		case "m": controls.speed = 10; break;
-		case " ": controls.fly = false; break;
-		case "h": controls.reset = false; break;
-	}
-}
-
-function updateAvatar(){
-	//"change the avatar's linear or angular velocity based on controls state (set by WSAD key presses)"
-	var forward = avatar.getWorldDirection();
-
-	if (controls.fwd){
-		avatar.setLinearVelocity(forward.multiplyScalar(controls.speed));
-	} else if (controls.bwd){
-		avatar.setLinearVelocity(forward.multiplyScalar(-controls.speed));
-	} else {
-		var velocity = avatar.getLinearVelocity();
-		velocity.x=velocity.z=0;
-		avatar.setLinearVelocity(velocity); //stop the xz motion
-	}
-
-	if (controls.fly){
-	  avatar.setLinearVelocity(new THREE.Vector3(0,controls.speed,0));
-	}
-
-	if (controls.left){
-		avatar.setAngularVelocity(new THREE.Vector3(0,controls.speed*0.1,0));
-	} else if (controls.right){
-		avatar.setAngularVelocity(new THREE.Vector3(0,-controls.speed*0.1,0));
-	}
-
-	if (controls.reset){
-	  avatar.__dirtyPosition = true;
-	  avatar.position.set(40,10,40);
-	}
 }
 
 function createPointLight(){
