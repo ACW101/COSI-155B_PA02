@@ -4,19 +4,22 @@ var scene, camera, avatarCam;     //main scene
 var endScene, endCamera, endText; //end scene
 
 // main scene objects
-var avatar;
+var avatar, npc;
 var cone;
 var clock;
 
-// control object that store the states of avatar
+// control object that store the states of avatar and npc
 var controls =
 	{fwd:false, bwd:false, left:false, right:false,
 	 speed:10, fly:false, reset:false,
 	 camera:camera};
 
+var npcControls =
+	{};
+
 // object that store the states of main game
 var gameState =
-	{score:0, health:10, scene:'main', camera:'none' };
+	{score:0, health:10, scene:'main', camera:'none'};
 
 
 init();     // initialize scene
@@ -67,6 +70,11 @@ function createMainScene(){
 	scene.add(avatar);
 	gameState.camera = avatarCam;
 
+	// create npc
+	npc = createNPC();
+	npc.translateY(20);
+	scene.add(npc);
+
 	addBalls();
 	//playGameMusic();
 }
@@ -97,6 +105,7 @@ function animate() {
 
 		case "main":
 			updateAvatar();
+			updateNPC();
     		scene.simulate();
 			if (gameState.camera!= 'none'){
 				renderer.render( scene, gameState.camera );
@@ -109,7 +118,7 @@ function animate() {
 	}
 	//draw heads up display ..
 	var info = document.getElementById("info");
-	info.innerHTML='<div style="font-size:24pt">Score: ' + gameState.score + '</div>';
+	info.innerHTML='<div style="font-size:24pt">Score: ' + gameState.score + '  Health: ' + gameState.health + '</div>';
 }
 
 
@@ -227,6 +236,23 @@ function updateAvatar(){
 	if (controls.reset){
 	  avatar.__dirtyPosition = true;
 	  avatar.position.set(40,10,40);
+	}
+}
+
+function updateNPC(){
+
+	if (npc.position.distanceTo(avatar.position) < 10) {
+		gameState.health -= 1;
+		npc.__dirtyPosition = true;
+		npc.position.set(-40+randN(80),5,-40+randN(80));
+		if (npc.position.distanceTo(avatar.position) < 10) {
+			updateNPC();
+		}
+	} else if (npc.position.distanceTo(avatar.position) < 40) {
+		//var f = avatar.position.add(npc.position.multiplyScalar(-1)).normalize();
+		//f.y = 0;
+		//npc.setLinearVelocity(f);
+
 	}
 }
 
@@ -371,6 +397,21 @@ function createAvatar(){
 	avatarCam.position.set(0,4,0);
 	avatarCam.lookAt(0,4,10);
 	mesh.add(avatarCam);
+
+	return mesh;
+}
+
+
+function createNPC() {
+	var geometry = new THREE.BoxGeometry( 5, 5, 6);
+	var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+	var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
+	//var mesh = new THREE.Mesh( geometry, material );
+	var mesh = new Physijs.BoxMesh( geometry, pmaterial);
+	mesh.setDamping(0.1,0.1);
+	mesh.__dirtyPosition = true;
+	mesh.position.set(40,0,40);
+	mesh.castShadow = true;
 
 	return mesh;
 }
