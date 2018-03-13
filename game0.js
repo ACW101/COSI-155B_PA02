@@ -348,7 +348,7 @@ function randN(n){
 
 
 function addBalls(){
-	var numBalls = 3;
+	var numBalls = 2;
 
 	for(i=0;i<numBalls;i++){
 		var ball = createBall();
