@@ -1,6 +1,6 @@
 
 var renderer;  // renderer
-var scene, camera, avatarCam;     //main scene
+var scene, startCamera, camera, avatarCam;     //main scene
 var endScene, endCamera, endText; //end scene
 
 // main scene objects
@@ -12,7 +12,7 @@ var clock;
 var controls =
 	{fwd:false, bwd:false, left:false, right:false,
 	 speed:10, fly:false, reset:false,
-	 camera:camera};
+	 camera:startCamera};
 
 var npcControls =
 	{};
@@ -47,9 +47,13 @@ function createMainScene(){
 	var light0 = new THREE.AmbientLight( 0xffffff,0.25);
 	scene.add(light0);
 
+    startCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    startCamera.position.set(50, 50, 0);
+    startCamera.lookAt(0,0,0);
+
 	// create main camera
 	camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
-	camera.position.set(0,50,0);
+	camera.position.set(0, 50, 0);
 	camera.lookAt(0,0,0);
 
 	// create the ground and the skybox and cone
@@ -63,12 +67,13 @@ function createMainScene(){
 
 	// create the avatar
 	avatarCam = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
-	avatar = createAvatar();
-	avatar.translateY(20);
+	//avatar = createAvatar();
+	//avatar.translateY(20);
 	avatarCam.translateY(-4);
 	avatarCam.translateZ(3);
-	scene.add(avatar);
-	gameState.camera = avatarCam;
+	//scene.add(avatar);
+	initMonkey();
+	gameState.camera = startCamera;
 
 	// create npc
 	npc = createNPC();
@@ -78,6 +83,28 @@ function createMainScene(){
 	addBalls();
 	//playGameMusic();
 }
+
+	function initMonkey() {
+		var loader = new THREE.JSONLoader();
+		loader.load("../models/suzanne.json",function(geometry, materials) {
+			console.log("loading monkey");
+			var amaterial = new THREE.MeshLambertMaterial( { color: 0x8B4513} );
+			var material = new Physijs.createMaterial(amaterial,0.9,0.5);
+			avatar = new Physijs.BoxMesh( geometry, material,99999);
+
+			avatar.setDamping(0.1,0.1);
+			avatar.castShadow = true;
+			avatar.scale.set(3,3,3);
+
+			avatar.castShadow=true;
+			avatar.translateY(20);
+			avatarCam.position.set(0,0.5,1);
+			avatarCam.lookAt(0,2,10);
+			avatar.add(avatarCam);
+			scene.add(avatar);
+		});
+	}
+
 
 function createEndScene(){
 	endScene = initScene();
@@ -98,6 +125,9 @@ function animate() {
 	requestAnimationFrame( animate );
 
 	switch(gameState.scene) {
+        case "start":
+            renderer.render(scene, gameState.camera);
+            break;
 		case "youwon":
 			endText.rotateY(0.005);
 			renderer.render( endScene, endCamera );
@@ -184,12 +214,21 @@ function keydown(event){
 		// switch cameras
 		case "1": gameState.camera = camera; break;
 		case "2": gameState.camera = avatarCam; break;
+        case "p":
+            if (gameState.scene == "start") {
+                document.getElementById("startBlock").style.display = "none";
+                gameState.scene = "main";
+                gameState.camera = avatarCam;
+            }
+            break;
 
 		// move the camera around, relative to the avatar
 		case "ArrowLeft": avatarCam.translateY(1);break;
 		case "ArrowRight": avatarCam.translateY(-1);break;
 		case "ArrowUp": avatarCam.translateZ(-1);break;
 		case "ArrowDown": avatarCam.translateZ(1);break;
+		case "q": avatarCam.rotation.y -= Math.PI/10;break;
+		case "e": avatarCam.rotation.y += Math.PI/10;break;
 	}
 }
 
