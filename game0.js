@@ -77,33 +77,33 @@ function createMainScene(){
 
 	// create npc
 	npc = createNPC();
-	npc.translateY(20);
+	npc.translateY(10);
 	scene.add(npc);
 
 	addBalls();
 	//playGameMusic();
 }
 
-	function initMonkey() {
-		var loader = new THREE.JSONLoader();
-		loader.load("../models/suzanne.json",function(geometry, materials) {
-			console.log("loading monkey");
-			var amaterial = new THREE.MeshLambertMaterial( { color: 0x8B4513} );
-			var material = new Physijs.createMaterial(amaterial,0.9,0.5);
-			avatar = new Physijs.BoxMesh( geometry, material,99999);
+function initMonkey() {
+	var loader = new THREE.JSONLoader();
+	loader.load("../models/suzanne.json",function(geometry, materials) {
+		console.log("loading monkey");
+		var amaterial = new THREE.MeshLambertMaterial( { color: 0x8B4513} );
+		var material = new Physijs.createMaterial(amaterial,0.9,0.5);
+		avatar = new Physijs.BoxMesh( geometry, material,99999);
 
-			avatar.setDamping(0.1,0.1);
-			avatar.castShadow = true;
-			avatar.scale.set(3,3,3);
+		avatar.setDamping(0.1,0.1);
+		avatar.castShadow = true;
+		avatar.scale.set(3,3,3);
 
-			avatar.castShadow=true;
-			avatar.translateY(20);
-			avatarCam.position.set(0,0.5,1);
-			avatarCam.lookAt(0,2,10);
-			avatar.add(avatarCam);
-			scene.add(avatar);
-		});
-	}
+		avatar.castShadow=true;
+		avatar.translateY(20);
+		avatarCam.position.set(0,0.5,1);
+		avatarCam.lookAt(0,2,10);
+		avatar.add(avatarCam);
+		scene.add(avatar);
+	});
+}
 
 
 function createEndScene(){
@@ -196,6 +196,19 @@ function initRenderer(){
 	document.body.appendChild( renderer.domElement );
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	window.addEventListener('resize', handleWindowResize, false);
+}
+
+function handleWindowResize() {
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    startCamera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = window.innerWidth / window.innerHeight;
+	avatarCam.aspect = window.innerWidth / window.innerHeight;
+	endCamera.aspect = window.innerWidth / window.innerHeight;
+    startCamera.updateProjectionMatrix();
+	camera.updateProjectionMatrix();
+	avatarCam.updateProjectionMatrix();
+	endCamera.updateProjectionMatrix();
 }
 
 
@@ -307,20 +320,24 @@ function updateAvatar(){
 
 function updateNPC(){
 
-	if (npc.position.distanceTo(avatar.position) < 10) {
+	if (npc.position.distanceTo(avatar.position) < 15) {
 		gameState.health -= 1;
 		if(gameState.health <= 0){
 			gameState.scene='youlose';
 		}
 		npc.__dirtyPosition = true;
 		npc.position.set(-40+randN(80),5,-40+randN(80));
-		if (npc.position.distanceTo(avatar.position) < 10) {
+		if (npc.position.distanceTo(avatar.position) < 50) {
 			updateNPC();
 		}
-	} else if (npc.position.distanceTo(avatar.position) < 40) {
-		//var f = avatar.position.add(npc.position.multiplyScalar(-1)).normalize();
-		//f.y = 0;
-		//npc.setLinearVelocity(f);
+	} else if (npc.position.distanceTo(avatar.position) < 50) {
+		var forward = avatar.position;
+		forward.y = npc.position.y/2;
+		npc.lookAt(forward);
+		npc.__dirtyPosition = true;
+		var f = npc.getWorldDirection().normalize();
+		f.y = 0;
+		npc.setLinearVelocity(f.multiplyScalar(5));
 
 	}
 }
@@ -472,17 +489,30 @@ function createAvatar(){
 
 
 function createNPC() {
-	var geometry = new THREE.BoxGeometry( 5, 5, 6);
+	var geometry = new THREE.BoxGeometry( 3, 3, 3);
 	var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
 	var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
-	//var mesh = new THREE.Mesh( geometry, material );
-	var mesh = new Physijs.BoxMesh( geometry, pmaterial);
+	pmaterial.visible = false;
+	var mesh = new Physijs.BoxMesh( geometry, pmaterial, 99999);
+
+
+	var objloader = new THREE.OBJLoader();
+	//objloader.setMaterials(new THREE.MeshLambertMaterial( { color: 0xffffff} ) );
+	objloader.load('../models/stormtrooper.obj', function (loadedMesh) {
+
+		loadedMesh.scale.set(5.0, 5.0, 5.0);
+		loadedMesh.receiveShadow = true;
+		mesh.add(loadedMesh)
+
+	});
+
 	mesh.setDamping(0.1,0.1);
 	mesh.__dirtyPosition = true;
 	mesh.position.set(40,0,40);
 	mesh.castShadow = true;
 
 	return mesh;
+
 }
 
 
