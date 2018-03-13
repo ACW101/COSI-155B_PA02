@@ -11,7 +11,7 @@ The user moves a cube around the board trying to knock balls into a cone
 	// in the animation code
 	var scene, renderer;  // all threejs programs need these
 	var camera, avatarCam;  // we have two cameras in the main scene
-	var avatar;
+	var avatar, suzanne;
 	// here are some mesh objects ...
 
 	var cone;
@@ -62,6 +62,7 @@ The user moves a cube around the board trying to knock balls into a cone
 			scene = initScene();
 			createEndScene();
 			initRenderer();
+			
 			createMainScene();
 	}
 
@@ -88,12 +89,14 @@ The user moves a cube around the board trying to knock balls into a cone
 			scene.add(skybox);
 
 			// create the avatar
+			initMonkey();
 			avatarCam = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 1000 );
-			avatar = createAvatar();
-			avatar.translateY(20);
+			//avatar = createAvatar();
+			
+			
 			avatarCam.translateY(-4);
 			avatarCam.translateZ(3);
-			scene.add(avatar);
+
 			gameState.camera = avatarCam;
 
 			addBalls();
@@ -104,10 +107,41 @@ The user moves a cube around the board trying to knock balls into a cone
 
 
 			//playGameMusic();
+		var imgLoader = new THREE.ImageLoader();
+		var texture = new THREE.Texture();
+		imgLoader.load( 'textures/UV_Grid_Sm.jpg', function ( image ) {  
+                texture.image = image;  
+                texture.needsUpdate = true;  
+        } );
+
+
+		
+
 
 	}
 
 
+	
+	function initMonkey() {
+		var loader = new THREE.JSONLoader();
+		loader.load("../models/suzanne.json",function(geometry, materials) {
+			console.log("loading monkey");
+			var amaterial = new THREE.MeshLambertMaterial( { color: 0xffff00} );
+			var material = new Physijs.createMaterial(amaterial,0.9,0.5);
+			avatar = new Physijs.BoxMesh( geometry, material,99999);
+
+			avatar.setDamping(0.1,0.1);
+			avatar.castShadow = true;
+			avatar.scale.set(3,3,3);
+			
+			avatar.castShadow=true;
+			avatar.translateY(20);
+			avatarCam.position.set(0,0.5,1);
+			avatarCam.lookAt(0,2,10);
+			avatar.add(avatarCam);
+			scene.add(avatar);
+		});
+	}
 	function randN(n){
 		return Math.random()*n;
 	}
@@ -128,7 +162,7 @@ The user moves a cube around the board trying to knock balls into a cone
 				function( other_object, relative_velocity, relative_rotation, contact_normal ) {
 					if (other_object==cone){
 						console.log("ball "+i+" hit the cone");
-						soundEffect('good.wav');
+						soundEffect('../sounds/good.wav');
 						gameState.score += 1;  // add one to the score
 						if (gameState.score==numBalls) {
 							gameState.scene='youwon';
@@ -155,7 +189,7 @@ The user moves a cube around the board trying to knock balls into a cone
 
 		// load a sound and set it as the Audio object's buffer
 		var audioLoader = new THREE.AudioLoader();
-		audioLoader.load( '/sounds/loop.mp3', function( buffer ) {
+		audioLoader.load( '../sounds/loop.mp3', function( buffer ) {
 			sound.setBuffer( buffer );
 			sound.setLoop( true );
 			sound.setVolume( 0.05 );
@@ -274,12 +308,14 @@ The user moves a cube around the board trying to knock balls into a cone
 
 	}
 
+
 	function createAvatar(){
 		//var geometry = new THREE.SphereGeometry( 4, 20, 20);
 		var geometry = new THREE.BoxGeometry( 5, 5, 6);
 		var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
 		var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
 		//var mesh = new THREE.Mesh( geometry, material );
+		
 		var mesh = new Physijs.BoxMesh( geometry, pmaterial );
 		mesh.setDamping(0.1,0.1);
 		mesh.castShadow = true;
@@ -369,6 +405,9 @@ The user moves a cube around the board trying to knock balls into a cone
 			case "ArrowUp": avatarCam.translateZ(-1);break;
 			case "ArrowDown": avatarCam.translateZ(1);break;
 
+			//add q and e to set the angel of camera
+			case "q":avatarCam.rotation.y -= Math.PI/10;break;
+			case "e":avatarCam.rotation.y += Math.PI/10;break;
 		}
 
 	}
