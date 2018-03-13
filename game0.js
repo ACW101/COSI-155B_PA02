@@ -127,6 +127,7 @@ function animate() {
 	switch(gameState.scene) {
         case "start":
             renderer.render(scene, gameState.camera);
+            updateCamera();
             break;
 		case "youwon":
 			endText.rotateY(0.005);
@@ -149,6 +150,12 @@ function animate() {
 	//draw heads up display ..
 	var info = document.getElementById("info");
 	info.innerHTML='<div style="font-size:24pt">Score: ' + gameState.score + '  Health: ' + gameState.health + '</div>';
+}
+
+function updateCamera() {
+    var time = clock.getElapsedTime();
+    startCamera.position.set(50* Math.sin(time / 10), 30, 50 * Math.cos(time / 10))
+    startCamera.lookAt(0,0,0)
 }
 
 
