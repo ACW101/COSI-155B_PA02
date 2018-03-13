@@ -181,6 +181,19 @@ function initRenderer(){
 	document.body.appendChild( renderer.domElement );
 	renderer.shadowMap.enabled = true;
 	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+	window.addEventListener('resize', handleWindowResize, false);
+}
+
+function handleWindowResize() {
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    startCamera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = window.innerWidth / window.innerHeight;
+	avatarCam.aspect = window.innerWidth / window.innerHeight;
+	endCamera.aspect = window.innerWidth / window.innerHeight;
+    startCamera.updateProjectionMatrix();
+	camera.updateProjectionMatrix();
+	avatarCam.updateProjectionMatrix();
+	endCamera.updateProjectionMatrix();
 }
 
 
@@ -295,7 +308,9 @@ function updateNPC(){
 			updateNPC();
 		}
 	} else if (npc.position.distanceTo(avatar.position) < 50) {
-		npc.lookAt(avatar.position);
+		var forward = avatar.position;
+		forward.y = npc.position.y/2;
+		npc.lookAt(forward);
 		npc.__dirtyPosition = true;
 		var f = npc.getWorldDirection().normalize();
 		f.y = 0;
@@ -455,7 +470,7 @@ function createNPC() {
 	var material = new THREE.MeshLambertMaterial( { color: 0xffff00} );
 	var pmaterial = new Physijs.createMaterial(material,0.9,0.5);
 	pmaterial.visible = false;
-	var mesh = new Physijs.BoxMesh( geometry, pmaterial);
+	var mesh = new Physijs.BoxMesh( geometry, pmaterial, 99999);
 
 
 	var objloader = new THREE.OBJLoader();
