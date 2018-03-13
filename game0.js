@@ -1,7 +1,7 @@
 
 var renderer;  // renderer
 var scene, startCamera, camera, avatarCam;     //main scene
-var endScene, endCamera, endText; //end scene
+var endScene,loseScene, endCamera, endText; //end scene
 
 // main scene objects
 var avatar, npc;
@@ -19,7 +19,7 @@ var npcControls =
 
 // object that store the states of main game
 var gameState =
-	{score:0, health:10, scene:'start', camera:'none'};
+	{score:0, health:1, scene:'start', camera:'none'};
 
 
 init();     // initialize scene
@@ -117,9 +117,22 @@ function createEndScene(){
 	endCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
 	endCamera.position.set(0,50,1);
 	endCamera.lookAt(0,0,0);
-
+	createLoseScene();
 }
-
+function createLoseScene(){
+	loseScene = initScene();
+	//endText.rotateX(Math.PI);
+	var geometry = new THREE.PlaneGeometry( 200, 100);
+	var texture = new THREE.TextureLoader().load( '../images/youlose.png' );
+	var material = new THREE.MeshBasicMaterial( {color: 0xffff00, map:texture, side: THREE.DoubleSide} );
+	var loseplane = new THREE.Mesh( geometry, material );
+	loseplane.position.set(0,0,0);
+	loseplane.rotation.set(4.8,0,0);
+	loseScene.add(loseplane);
+	var light1 = createPointLight();
+	light1.position.set(0,200,20);
+	loseScene.add(light1);
+}
 function animate() {
 
 	requestAnimationFrame( animate );
@@ -133,7 +146,9 @@ function animate() {
 			endText.rotateY(0.005);
 			renderer.render( endScene, endCamera );
 			break;
-
+		case "youlose":
+			renderer.render(loseScene,endCamera);
+			break;
 		case "main":
 			updateAvatar();
 			updateNPC();
@@ -204,7 +219,12 @@ function keydown(event){
 		addBalls();
 		return;
 	}
-
+	if (gameState.scene == 'youlose' && event.key=='r') {
+		gameState.scene = 'main';
+		gameState.score = 0;
+		gameState.health = 10;
+		return;
+	}
 	// this is the regular scene
 	switch (event.key){
 		// change the way the avatar is moving
@@ -289,6 +309,9 @@ function updateNPC(){
 
 	if (npc.position.distanceTo(avatar.position) < 10) {
 		gameState.health -= 1;
+		if(gameState.health <= 0){
+			gameState.scene='youlose';
+		}
 		npc.__dirtyPosition = true;
 		npc.position.set(-40+randN(80),5,-40+randN(80));
 		if (npc.position.distanceTo(avatar.position) < 10) {
@@ -308,7 +331,7 @@ function randN(n){
 
 
 function addBalls(){
-	var numBalls = 2
+	var numBalls = 3;
 
 	for(i=0;i<numBalls;i++){
 		var ball = createBall();
