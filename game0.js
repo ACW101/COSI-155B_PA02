@@ -19,7 +19,7 @@ var npcControls =
 
 // object that store the states of main game
 var gameState =
-	{score:0, health:10, scene:'main', camera:'none'};
+	{score:0, health:10, scene:'start', camera:'none'};
 
 
 init();     // initialize scene
