@@ -10,15 +10,29 @@ that cast shadows!
 		<style>
 			body { margin: 0;}
 			canvas { width: 100%; height: 100%;}
+            #startBlock {
+                position: fixed;
+                top: 0;
+                height: 100%;
+                width: 100%;
+                color: white;
+                background: rgba(0,0,0,0.5);
+            }
+            #text {
+                font-size: 50px;
+                text-align: center;
+                margin-top: 50vh;
+            }
 		</style>
 	</head>
 	<body>
-		<script src="../three.js"></script>
-    <script src="/js/physi.js"></script>
-		<script src="../libs/dat.gui.min.js"></script>
-		<script src="../loaders/OBJLoader.js"></script>
+		<script src="/libs/three.js"></script>
+    	<script src="/libs/physi.js"></script>
+		<script src="/libs/dat.gui.min.js"></script>
+		<script src="/libs/OBJLoader.js"></script>
 		<script src="game0.js"></script>
-		<div id="info"></div>
+        <div id="info"></div>
 
+        <div id="startBlock"><h4 id="text">Press p to start</h4></div>
 	</body>
 </html>
