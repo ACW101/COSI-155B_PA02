@@ -19,7 +19,7 @@ var npcControls =
 
 // object that store the states of main game
 var gameState =
-	{score:0, health:1, scene:'start', camera:'none'};
+	{score:0, health:10, scene:'start', camera:'none'};
 
 
 init();     // initialize scene
@@ -229,6 +229,7 @@ function keydown(event){
 	if (gameState.scene == 'youwon' && event.key=='r') {
 		gameState.scene = 'main';
 		gameState.score = 0;
+		gameState.health = 10;
 		addBalls();
 		return;
 	}
@@ -250,7 +251,7 @@ function keydown(event){
 		//case "m": controls.speed = 30; break;
 		//case " ": controls.fly = true; break;
 		case "h": controls.reset = true; break;
-
+		case "j": controls.dash = true; break;
 		// switch cameras
 		case "1": gameState.camera = camera; break;
 		case "2": gameState.camera = avatarCam; break;
@@ -291,8 +292,12 @@ function keyup(event){
 function updateAvatar(){
 	//"change the avatar's linear or angular velocity based on controls state (set by WSAD key presses)"
 	var forward = avatar.getWorldDirection();
-
-	if (controls.fwd){
+	if (controls.dash){
+		avatar.setLinearVelocity(forward.multiplyScalar(controls.speed*10));
+		setTimeout(function(){
+			controls.dash = false;
+		},100);
+	} else if (controls.fwd){
 		avatar.setLinearVelocity(forward.multiplyScalar(controls.speed));
 	} else if (controls.bwd){
 		avatar.setLinearVelocity(forward.multiplyScalar(-controls.speed));
