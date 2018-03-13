@@ -1,6 +1,6 @@
 
 var renderer;  // renderer
-var scene, camera, avatarCam;     //main scene
+var scene, startCamera, camera, avatarCam;     //main scene
 var endScene, endCamera, endText; //end scene
 
 // main scene objects
@@ -12,11 +12,11 @@ var clock;
 var controls =
 	{fwd:false, bwd:false, left:false, right:false,
 	 speed:10, fly:false, reset:false,
-	 camera:camera};
+	 camera:startCamera};
 
 // object that store the states of main game
 var gameState =
-	{score:0, health:10, scene:'main', camera:'none' };
+	{score:0, health:10, scene:'start', camera:'none' };
 
 
 init();     // initialize scene
@@ -43,10 +43,14 @@ function createMainScene(){
 	scene.add(light1);
 	var light0 = new THREE.AmbientLight( 0xffffff,0.25);
 	scene.add(light0);
+    
+    startCamera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    startCamera.position.set(50, 50, 0);
+    startCamera.lookAt(0,0,0);
 
 	// create main camera
 	camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 1000 );
-	camera.position.set(0,50,0);
+	camera.position.set(0, 50, 0);
 	camera.lookAt(0,0,0);
 
 	// create the ground and the skybox and cone
@@ -65,7 +69,7 @@ function createMainScene(){
 	avatarCam.translateY(-4);
 	avatarCam.translateZ(3);
 	scene.add(avatar);
-	gameState.camera = avatarCam;
+	gameState.camera = startCamera;
 
 	addBalls();
 	//playGameMusic();
@@ -90,6 +94,9 @@ function animate() {
 	requestAnimationFrame( animate );
 
 	switch(gameState.scene) {
+        case "start":
+            renderer.render(scene, gameState.camera);
+            break;
 		case "youwon":
 			endText.rotateY(0.005);
 			renderer.render( endScene, endCamera );
@@ -175,6 +182,13 @@ function keydown(event){
 		// switch cameras
 		case "1": gameState.camera = camera; break;
 		case "2": gameState.camera = avatarCam; break;
+        case "p": 
+            if (gameState.scene == "start") {
+                document.getElementById("startBlock").style.display = "none";
+                gameState.scene = "main";
+                gameState.camera = avatarCam;
+            }
+            break;
 
 		// move the camera around, relative to the avatar
 		case "ArrowLeft": avatarCam.translateY(1);break;
