@@ -231,14 +231,20 @@ function keydown(event){
 		gameState.scene = 'main';
 		gameState.score = 0;
 		gameState.health = 10;
-		addBalls();
+		addBalls(2);
+		totalBalls = 2;
 		return;
+		// location.reload(force);
+
 	}
 	if (gameState.scene == 'youlose' && event.key=='r') {
 		gameState.scene = 'main';
 		gameState.score = 0;
 		gameState.health = 10;
+		totalBalls = 2;
 		return;
+		// location.reload(force);
+
 	}
 	// this is the regular scene
 	switch (event.key){
