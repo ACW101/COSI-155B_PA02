@@ -22,10 +22,10 @@ look at how we handle the "win" situation
 - [x] Add a start screen, where the user can initiate play by hitting the P key
 
 - Each member of the team should also add at least one additional feature to the game
-    - [ ] Chuanxiong
-    - [ ] Jinli
-    - [ ] Kevin
-    - [ ] Qiao
-    - [ ] Yifu
+    - [x] Chuanxiong: add random balls pressing key "i",
+    - [x] Jinli: add lose scene, add "dash" to avatar pressing key "j"
+    - [x] Kevin: make camera rotate around the main scene in startScene
+    - [ ] Qiao:
+    - [x] Yifu: adjust camera to resized window, replace NPC with a stormtrooper model
 
 How to submit... (coming soon)
