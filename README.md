@@ -16,7 +16,7 @@ You can use the lookAt method to have the NPC face the avatar
 - [x] When the NPC hits the Avatar, the avatar should lose a point of health and the NPC should be teleported to a random position on the board\
 see how we teleported the avatar with the "h" key
 
-- [ ] When the Avatar reaches zero health, the game should go to a You Lose scene, which the player can restart with the "r" key\
+- [x] When the Avatar reaches zero health, the game should go to a You Lose scene, which the player can restart with the "r" key\
 look at how we handle the "win" situation
 
 - [x] Add a start screen, where the user can initiate play by hitting the P key
