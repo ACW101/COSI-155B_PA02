@@ -1,6 +1,6 @@
-# COSI-155B_PA02
+# Three.js Game - Team Seapunk
 
-Due Wednesday 3/13/18 before midnight
+Due Tuesday 3/20/18 before midnight
 
 You are to work with your team to modify the game0 demo from class and make the following changes:
 
@@ -21,11 +21,17 @@ look at how we handle the "win" situation
 
 - [x] Add a start screen, where the user can initiate play by hitting the P key
 
-- Each member of the team should also add at least one additional feature to the game
+- Each member of the team should also add at least one additional feature to the game\ 
     - [x] Chuanxiong: add random balls pressing key "i",
     - [x] Jinli: add lose scene, add "dash" to avatar pressing key "j"
     - [x] Kevin: make camera rotate around the main scene in startScene
     - [ ] Qiao:
     - [x] Yifu: adjust camera to resized window, replace NPC with a stormtrooper model
 
-How to submit... (coming soon)
+How to submit...
+- [ ] make a 30 second movie demonstrating that your game meets the criteria (take a phone movie of someone playing it). You can upload several short movies if you want, one for each feature, but the total should be at most 30 seconds, and you should narrate the movies.
+- [ ] create a page on your team site for PA02
+- [ ] upload your movie to youtube or vimeo and add a link to it from your team page
+- [ ] upload your game to github and add a link to it the github site to your PA02  team page
+- [ ] upload a link to your PA02 team page to latte and also upload a reflection about what you individually did for the project
+- [ ] You should also make your game playable on the github site (I'll show you how to do this on Wednesday)
