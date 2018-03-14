@@ -21,6 +21,7 @@ var npcControls =
 var gameState =
 	{score:0, health:10, scene:'start', camera:'none'};
 
+var totalBalls = 2;
 
 init();     // initialize scene
 animate();  // start the animation loop!
@@ -80,7 +81,7 @@ function createMainScene(){
 	npc.translateY(10);
 	scene.add(npc);
 
-	addBalls();
+	addBalls(totalBalls);
 	//playGameMusic();
 }
 
@@ -270,6 +271,8 @@ function keydown(event){
 		case "ArrowDown": avatarCam.translateZ(1);break;
 		case "q": avatarCam.rotation.y -= Math.PI/10;break;
 		case "e": avatarCam.rotation.y += Math.PI/10;break;
+		//press i to addBalls
+		case "i": totalBalls +=3; addBalls(3);
 	}
 }
 
@@ -352,21 +355,32 @@ function randN(n){
 }
 
 
-function addBalls(){
-	var numBalls = 2;
-
+function addBalls(numBalls){
 	for(i=0;i<numBalls;i++){
 		var ball = createBall();
 		ball.position.set(randN(20)+15,30,randN(20)+15);
 		scene.add(ball);
-
+		ball.removeEventListener('collision',function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+				if (other_object==cone){
+					console.log("ball "+i+" hit the cone");
+					soundEffect('good.wav');
+					gameState.score += 1;  // add one to the score
+					if (gameState.score==totalBalls) {
+						gameState.scene='youwon';
+					}
+					// make the ball drop below the scene ..
+					// threejs doesn't let us remove it from the scene...
+					this.position.y = this.position.y - 100;
+					this.__dirtyPosition = true;
+				}
+			});
 		ball.addEventListener( 'collision',
 			function( other_object, relative_velocity, relative_rotation, contact_normal ) {
 				if (other_object==cone){
 					console.log("ball "+i+" hit the cone");
 					soundEffect('good.wav');
 					gameState.score += 1;  // add one to the score
-					if (gameState.score==numBalls) {
+					if (gameState.score==totalBalls) {
 						gameState.scene='youwon';
 					}
 					// make the ball drop below the scene ..
