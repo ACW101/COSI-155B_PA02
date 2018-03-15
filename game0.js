@@ -271,10 +271,12 @@ function keydown(event){
             break;
 
 		// move the camera around, relative to the avatar
-		case "ArrowLeft": avatarCam.translateY(1);break;
-		case "ArrowRight": avatarCam.translateY(-1);break;
-		case "ArrowUp": avatarCam.translateZ(-1);break;
-		case "ArrowDown": avatarCam.translateZ(1);break;
+		case "ArrowLeft": camera.position.x -= 1;break;
+		case "ArrowRight": camera.position.x += 1;break;
+		case "ArrowUp": camera.position.z -= 1;break;
+		case "ArrowDown": camera.position.z += 1;break;
+		case "t": camera.rotation.x -= Math.PI/10;break;
+		case "g": camera.rotation.x += Math.PI/10;break;
 		case "q": avatarCam.rotation.y -= Math.PI/10;break;
 		case "e": avatarCam.rotation.y += Math.PI/10;break;
 		//press i to addBalls
