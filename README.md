@@ -25,7 +25,7 @@ look at how we handle the "win" situation
     - [x] Chuanxiong: add random balls pressing key "i",
     - [x] Jinli: add lose scene, add "dash" to avatar pressing key "j"
     - [x] Kevin: make camera rotate around the main scene in startScene
-    - [ ] Qiao:
+    - [x] Qiao: camera can be controlled by arrow keys and "t", "g"
     - [x] Yifu: adjust camera to resized window, replace NPC with a stormtrooper model
 
 How to submit...
