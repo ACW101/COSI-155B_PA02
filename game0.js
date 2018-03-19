@@ -7,6 +7,7 @@ var endScene,loseScene, endCamera, endText; //end scene
 var avatar, npc;
 var cone;
 var clock;
+var eggTexture = new THREE.TextureLoader().load('../images/eggTexture.jpg')
 
 // control object that store the states of avatar and npc
 var controls =
@@ -281,6 +282,7 @@ function keydown(event){
 		case "e": avatarCam.rotation.y += Math.PI/10;break;
 		//press i to addBalls
 		case "i": totalBalls +=3; addBalls(3);
+        case "b": createEgg()
 	}
 }
 
@@ -399,6 +401,10 @@ function addBalls(numBalls){
 			}
 		)
 	}
+}
+
+function addEgg() {
+    
 }
 
 function playGameMusic(){
@@ -566,4 +572,19 @@ function createBall(){
 	mesh.setDamping(0.1,0.1);
 	mesh.castShadow = true;
 	return mesh;
+}
+
+function createEgg(){
+	var geometry = new THREE.SphereGeometry( 1, 16, 16);
+	var material = new THREE.MeshPhongMaterial( { color: 0xffffff, map: eggTexture} );
+	var pmaterial = new Physijs.createMaterial(material,9,0.5);
+	var mesh = new Physijs.BoxMesh( geometry, material );
+    mesh.setDamping(10, 10)
+    console.log("added")
+    var offset = avatar.position.add(avatar.getWorldDirection().multiplyScalar(-1))
+    mesh.position.set(offset.x, offset.y, offset.z)
+    // mesh.position.set(avatar.position.x, avatar.position.y, avatar.position.z)
+	mesh.castShadow = true;
+    scene.add(mesh)
+   mesh.setLinearVelocity(avatar.getWorldDirection().multiplyScalar(-10))
 }
