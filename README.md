@@ -24,7 +24,7 @@ look at how we handle the "win" situation
 - Each member of the team should also add at least one additional feature to the game\ 
     - [x] Chuanxiong: add random balls pressing key "i",
     - [x] Jinli: add lose scene, add "dash" to avatar pressing key "j"
-    - [x] Kevin: make camera rotate around the main scene in startScene
+    - [x] Kevin: make camera rotate around the main scene in startScene, add layEgg function that shoots egg backward
     - [x] Qiao: camera can be controlled by arrow keys and "t", "g"
     - [x] Yifu: adjust camera to resized window, replace NPC with a stormtrooper model
 
